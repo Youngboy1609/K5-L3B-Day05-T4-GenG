@@ -40,17 +40,18 @@
           <div class="description current"><div class="label">Mô tả hiện tại · đã chỉnh sửa</div><p id="currentDescription">Áo khoác dù 1 lớp, màu đen, size M; không nêu logo.</p><small>Chỉnh sửa 15/05/2026 · 16:40</small></div>
         </div>
         <div class="complaint"><strong>Lời báo của người mua</strong><br>“Hàng nhận được không giống mô tả lúc mua; áo mỏng và không có logo.”</div>
-        <div class="actions"><button class="secondary" type="button" onclick="requestEvidence()">Xin thêm bằng chứng</button><button class="primary" id="refundAction" type="button" onclick="openRefundReview()">Soạn yêu cầu hoàn tiền</button><button class="quiet" type="button" onclick="transferToStaff()">Chuyển nhân viên</button></div>
+        <div class="actions"><button class="secondary" id="evidenceAction" type="button" onclick="requestEvidence()">Xin thêm bằng chứng</button><button class="quiet" id="undoEvidenceAction" type="button" onclick="undoEvidenceRequest()" hidden>Hủy gửi</button><button class="primary" id="refundAction" type="button" onclick="openRefundReview()">Soạn yêu cầu hoàn tiền</button><button class="quiet" id="transferAction" type="button" onclick="transferToStaff()">Chuyển nhân viên</button><button class="quiet" id="undoTransferAction" type="button" onclick="undoTransfer()" hidden>Thu hồi chuyển · đang chờ</button></div>
+        <div class="notice" id="evidenceNotice" role="status" aria-live="polite"></div>
         <div class="notice" id="notice" role="status" aria-live="polite"></div>
       </article>
       <aside class="card">
         <div class="annotation"><span class="num">3</span><h2>Bằng chứng còn thiếu</h2><p class="explain">Không suy đoán từ ảnh mờ hoặc mô tả hiện tại (G10 · PAIR Explainability).</p></div>
         <ul id="evidenceList"><li><span>○</span>Ảnh cận cảnh logo và chất liệu áo</li><li><span>○</span>Ảnh tem size / mã sản phẩm</li><li><span>○</span>Lịch sử chỉnh sửa mô tả (audit log)</li></ul>
-        <div class="annotation" style="margin-top:22px"><span class="num">4</span><h2>Đường chuyển an toàn</h2><p class="explain">Nhân viên nhận snapshot nguyên vẹn, không mất lời báo hay bằng chứng. SLA mock: phản hồi trong 24 giờ (G8/G9 · PAIR Graceful Failure).</p><button class="quiet" type="button" onclick="transferToStaff()">Chuyển nhân viên · SLA 24h</button></div>
+        <div class="annotation" style="margin-top:22px"><span class="num">4</span><h2>Đường chuyển an toàn</h2><p class="explain">Chuyển snapshot nguyên vẹn, không mất lời báo hay bằng chứng. SLA mock: phản hồi trong 24 giờ (G8/G9 · PAIR Graceful Failure).</p><button class="quiet" id="sidebarTransferAction" type="button" onclick="transferToStaff()">Chuyển nhân viên · SLA 24h</button><p class="explain" id="transferAsideStatus" hidden></p></div>
       </aside>
       <section class="card span">
         <h2>Mức tự chủ trong flow này</h2>
-        <div class="autonomy"><div class="level self"><strong>Tự làm</strong><p>Xin thêm bằng chứng và chuyển hồ sơ — có thể đảo lại, không tác động tiền.</p></div><div class="level human"><strong>Cần người duyệt</strong><p>Soạn nháp hoàn tiền; người mua phải xem và xác nhận rõ trước khi gửi.</p></div><div class="level blocked"><strong>Cấm</strong><p>Không tự từ chối, phạt hoặc khóa shop từ khiếu nại này.</p></div></div>
+        <div class="autonomy"><div class="level self"><strong>Tự làm</strong><p>Yêu cầu bằng chứng tự gửi sau 5 giây, có thể hủy trước khi gửi; chuyển hồ sơ mock có thể thu hồi khi còn chờ.</p></div><div class="level human"><strong>Cần người duyệt</strong><p>Soạn nháp hoàn tiền; người mua xác nhận gửi yêu cầu, nhân viên duyệt mọi tác động tiền.</p></div><div class="level blocked"><strong>Cấm</strong><p>Không tự từ chối, phạt hoặc khóa shop từ khiếu nại này.</p></div></div>
       </section>
     </section>
   </main>
@@ -64,7 +65,7 @@
     </section>
   </div>
   <script>
-    const state = {caseType:"descriptionChanged", evidenceRequested:false, transferSent:false, refundConfirmationOpen:false, refundSubmitted:false, refundInvoker:null};
+    const state = {caseType:"descriptionChanged", evidenceStatus:"idle", evidenceTimer:null, transferSent:false, transferUndone:false, refundConfirmationOpen:false, refundSubmitted:false, refundInvoker:null};
     const cases = {
       descriptionChanged:{label:"Ca mô tả đã bị sửa", current:"Áo khoác dù 1 lớp, màu đen, size M; không nêu logo.", switch:"Đổi sang ca người bán đúng"},
       sellerCorrect:{label:"Ca người bán đúng", current:"Áo khoác gió 2 lớp, màu xanh navy, size M; có logo thêu ở ngực trái.", switch:"Đổi sang ca mô tả đã bị sửa"}
@@ -75,19 +76,31 @@
       $("currentDescription").parentElement.classList.toggle("current",state.caseType==="descriptionChanged");
       $("currentDescription").nextElementSibling.textContent=state.caseType==="descriptionChanged"?"Chỉnh sửa 15/05/2026 · 16:40":"Đã xác nhận theo hồ sơ shop · 12/05/2026 · 09:16";
       $("orderDescription").textContent=state.caseType==="descriptionChanged"?"Áo khoác gió 2 lớp, màu xanh navy, size M; có logo thêu ở ngực trái.":"Áo khoác gió 2 lớp, màu xanh navy, size M; có logo thêu ở ngực trái.";
-      $("evidenceList").innerHTML=(state.caseType==="descriptionChanged"?["Ảnh cận cảnh logo và chất liệu áo","Ảnh tem size / mã sản phẩm","Lịch sử chỉnh sửa mô tả (audit log)"]:["Ảnh cận cảnh logo và chất liệu áo","Ảnh tem size / mã sản phẩm","Ảnh chụp gói hàng và mã đơn"]).map(x=>`<li><span>${state.evidenceRequested?"◷":"○"}</span>${x}${state.evidenceRequested?" · Đang chờ":""}</li>`).join("");
-      $("notice").textContent=state.transferSent?`Đã chuyển snapshot cho nhân viên; tóm tắt ca: ${item.label}. SLA phản hồi trong 24 giờ.`:state.evidenceRequested?"Đã gửi yêu cầu bằng chứng mock; hồ sơ vẫn giữ trạng thái chưa đủ căn cứ.":"";
+      const evidencePending=state.evidenceStatus==="pending", evidenceSent=state.evidenceStatus==="sent", evidenceCancelled=state.evidenceStatus==="cancelled";
+      $("evidenceList").innerHTML=(state.caseType==="descriptionChanged"?["Ảnh cận cảnh logo và chất liệu áo","Ảnh tem size / mã sản phẩm","Lịch sử chỉnh sửa mô tả (audit log)"]:["Ảnh cận cảnh logo và chất liệu áo","Ảnh tem size / mã sản phẩm","Ảnh chụp gói hàng và mã đơn"]).map(x=>`<li><span>${evidencePending?"◷":evidenceSent?"✓":"○"}</span>${x}${evidencePending?" · Sẽ gửi sau 5 giây":evidenceSent?" · Đã gửi, chờ bổ sung":""}</li>`).join("");
+      $("evidenceAction").disabled=evidencePending||evidenceSent;
+      $("evidenceAction").textContent=evidencePending?"Đang chờ gửi · 5 giây":evidenceSent?"Đã gửi yêu cầu bằng chứng":evidenceCancelled?"Gửi lại yêu cầu bằng chứng":"Xin thêm bằng chứng";
+      $("undoEvidenceAction").hidden=!evidencePending;
+      $("evidenceNotice").textContent=evidencePending?"Mock: yêu cầu sẽ tự gửi sau 5 giây. Bấm Hủy gửi trước khi tin tới người nhận.":evidenceCancelled?"Đã hủy; chưa gửi tin nhắn nào.":evidenceSent?"Mock: tin đã tới người nhận và không thể thu hồi. Hồ sơ vẫn giữ trạng thái chưa đủ căn cứ.":"";
+      $("notice").textContent=state.transferSent?`Đã chuyển snapshot mock; ca: ${item.label}. Có thể thu hồi khi còn chờ. Prototype không mô phỏng nhân viên nhận hồ sơ. SLA phản hồi dự kiến: 24 giờ.`:state.transferUndone?"Đã thu hồi chuyển hồ sơ mock; snapshot và bằng chứng vẫn được giữ.":"";
+      $("transferAction").hidden=state.transferSent;
+      $("undoTransferAction").hidden=!state.transferSent;
+      $("sidebarTransferAction").hidden=state.transferSent;
+      $("transferAsideStatus").hidden=!state.transferSent;
+      $("transferAsideStatus").textContent=state.transferSent?"Đang chờ trong mô phỏng · có thể thu hồi ở nút trong hồ sơ.":"";
       $("status").innerHTML="<i></i>"+(state.refundSubmitted?"đã gửi nháp cho nhân viên · chờ duyệt":"chưa đủ căn cứ");
       $("status").style.background=state.refundSubmitted?"var(--green-soft)":"var(--amber-soft)"; $("status").style.color=state.refundSubmitted?"var(--green)":"var(--amber)";
       $("currentDescription").parentElement.style.display=state.caseType==="sellerCorrect"?"none":"block";
       $("refundAction").hidden=state.caseType==="sellerCorrect"||state.refundSubmitted; $("refundAction").disabled=state.refundSubmitted; $("refundAction").textContent=state.refundSubmitted?"Đã gửi yêu cầu":"Soạn yêu cầu hoàn tiền";
     }
-    function requestEvidence(){state.evidenceRequested=true;render()}
+    function requestEvidence(){if(state.evidenceStatus==="pending"||state.evidenceStatus==="sent")return;state.evidenceStatus="pending";state.evidenceTimer=window.setTimeout(()=>{state.evidenceTimer=null;state.evidenceStatus="sent";render()},5000);render()}
+    function undoEvidenceRequest(){if(state.evidenceStatus!=="pending")return;window.clearTimeout(state.evidenceTimer);state.evidenceTimer=null;state.evidenceStatus="cancelled";render()}
     function openRefundReview(){if(state.caseType==="sellerCorrect"||state.refundSubmitted)return;state.refundInvoker=document.activeElement;state.refundConfirmationOpen=true;$("refundModal").hidden=false;$("refundConfirm").checked=false;$("modalNotice").textContent="";$("refundDialog").focus()}
     function closeRefundReview(){state.refundConfirmationOpen=false;$("refundModal").hidden=true;if(state.refundInvoker&&state.refundInvoker.isConnected)state.refundInvoker.focus();state.refundInvoker=null}
     function submitRefund(){if(state.caseType!=="descriptionChanged"||state.refundSubmitted){closeRefundReview();render();return}if(!$("refundConfirm").checked){$("modalNotice").textContent="Vui lòng xác nhận bạn đã đọc bản nháp trước khi gửi.";return}state.refundSubmitted=true;closeRefundReview();render()}
-    function transferToStaff(){state.transferSent=true;render()}
-    function switchCase(){state.caseType=state.caseType==="descriptionChanged"?"sellerCorrect":"descriptionChanged";state.evidenceRequested=false;state.transferSent=false;state.refundSubmitted=false;render()}
+    function transferToStaff(){if(state.transferSent)return;state.transferSent=true;state.transferUndone=false;render()}
+    function undoTransfer(){if(!state.transferSent)return;state.transferSent=false;state.transferUndone=true;render()}
+    function switchCase(){if(state.evidenceTimer)window.clearTimeout(state.evidenceTimer);state.evidenceTimer=null;state.caseType=state.caseType==="descriptionChanged"?"sellerCorrect":"descriptionChanged";state.evidenceStatus="idle";state.transferSent=false;state.transferUndone=false;state.refundSubmitted=false;render()}
     document.addEventListener("keydown",event=>{if(!state.refundConfirmationOpen)return;if(event.key==="Escape"){closeRefundReview();return}if(event.key!=="Tab")return;const focusable=[...$("refundDialog").querySelectorAll("button,input,select,textarea,a[href]")].filter(element=>!element.disabled&&!element.hidden);if(!focusable.length){event.preventDefault();$("refundDialog").focus();return}const first=focusable[0],last=focusable[focusable.length-1];if(event.shiftKey&&(document.activeElement===first||!focusable.includes(document.activeElement))){event.preventDefault();last.focus()}else if(!event.shiftKey&&(document.activeElement===last||!focusable.includes(document.activeElement))){event.preventDefault();first.focus()}});
     render();
   </script>

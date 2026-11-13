@@ -92,8 +92,8 @@ sai một trong hai quyền lợi ở #3/#8.
 
 | Tool | Mức | Ai duyệt / xem gì / quá hạn | Ai chịu gì, đảo được không, cái giá của việc chờ |
 |---|---|---|---|
-| `yeu_cau_bang_chung` | Tự làm | Không cần duyệt; người mua hoặc người bán thấy chính xác loại ảnh/mã hàng cần bổ sung. | Tin đã gửi không thu hồi được, nhưng chưa đổi tiền hay kết luận. Xin nhầm làm người nhận tốn công; chỉ xin mục cụ thể, cho phép bỏ qua/chuyển người. Chờ duyệt mọi yêu cầu làm chậm việc thu thập bằng chứng. |
-| `chuyen_truong_nhom` | Tự làm | Không cần duyệt; trưởng nhóm nhận snapshot, lời hai bên và danh sách dữ liệu còn thiếu. | Có thể chuyển lại hồ sơ, nhưng chuyển thừa tăng hàng đợi. Không chuyển khi thiếu audit hoặc có mâu thuẫn sẽ làm hai bên chờ mà không có người giải quyết. SLA phản hồi mock 24 giờ; quá hạn nhắc/escalate, không tự phán quyết. |
+| `yeu_cau_bang_chung` | Tự làm | Không cần duyệt; người mua hoặc người bán thấy chính xác loại ảnh/mã hàng cần bổ sung. UI giữ yêu cầu 5 giây trước khi gửi và cho hủy trong khoảng đó. | Hủy được trước khi gửi; sau khi tin tới người nhận thì không thể thu hồi, cần gửi tin đính chính nếu cần. Xin nhầm làm người nhận tốn công; chỉ xin mục cụ thể, cho phép bỏ qua/chuyển người. Chờ duyệt mọi yêu cầu làm chậm việc thu thập bằng chứng. |
+| `chuyen_truong_nhom` | Tự làm | Không cần duyệt; trưởng nhóm nhận snapshot, lời hai bên và danh sách dữ liệu còn thiếu. | Có thể thu hồi khi hồ sơ còn đang chờ nhân viên nhận; sau khi đã nhận thì không thể thu hồi bằng nút này. Chuyển thừa tăng hàng đợi. Không chuyển khi thiếu audit hoặc có mâu thuẫn sẽ làm hai bên chờ mà không có người giải quyết. SLA phản hồi mock 24 giờ; quá hạn nhắc/escalate, không tự phán quyết. Prototype không mô phỏng sự kiện nhân viên nhận. |
 | `soan_hoan_tien` | Cần người duyệt | Nhân viên xem mô tả lúc đặt, bằng chứng, phản hồi hai bên, số tiền và lý do; người mua xác nhận nội dung yêu cầu. Quá SLA thì nhắc/escalate, không tự hoàn. | Hoàn sai khó đảo, shop mất tiền/hàng; chờ duyệt làm người mua chờ tiền hoặc có nguy cơ lỡ hạn. Giữ hồ sơ mở và báo thời hạn, không tự chuyển tiền để cân bằng hai phía. |
 | `tu_choi_khieu_nai` | Cần người duyệt | Nhân viên/trưởng nhóm xem cùng bộ hồ sơ hai phía và nguồn mô tả lúc đặt; quá SLA thì chuyển cấp xử lý, không tự đóng. | Từ chối sai làm người mua mất quyền khiếu nại; chờ người làm chậm xử lý nhưng còn giữ quyền. Không để AI gọi tool khi chỉ có lời một phía hoặc thiếu snapshot. |
 | `phat_shop` | Cấm trong flow này | Không có nút duyệt trong chat; bộ phận chuyên trách điều tra theo quy trình riêng. | Trừ điểm/khóa nhầm ảnh hưởng cả shop và khó đảo; chờ điều tra có thể chậm nhưng rẻ hơn trừng phạt dựa trên một khiếu nại chưa xác minh. |
@@ -140,8 +140,9 @@ nguồn/bằng chứng dễ kiểm chứng hơn.
 
 1. **Pass** nếu ca mô tả bị sửa hiển thị cả hai timestamp và `chưa đủ căn cứ`, **Fail**
    nếu chỉ dùng mô tả hiện tại hoặc tự kết luận.
-2. **Pass** nếu bấm “Xin thêm bằng chứng” và “Chuyển nhân viên” tạo thông báo mock,
-   giữ nguyên tóm tắt; **Fail** nếu mất bằng chứng hoặc không có đường chuyển.
+2. **Pass** nếu yêu cầu bằng chứng chờ 5 giây và hủy được trước khi gửi, sau khi gửi
+   nói rõ không thể thu hồi; chuyển nhân viên có thể thu hồi khi còn chờ trong mock và
+   giữ nguyên tóm tắt. **Fail** nếu UI cho rằng tin đã gửi còn thu hồi được hoặc làm mất hồ sơ.
 3. **Pass** nếu “Soạn yêu cầu hoàn tiền” chỉ mở bản nháp và cần xác nhận rõ ràng;
    **Fail** nếu click đầu tiên gửi tiền hoặc ca người bán đúng có nút tự từ chối.
 
@@ -150,15 +151,17 @@ nguồn/bằng chứng dễ kiểm chứng hơn.
 | Tiêu chí | #3 Mô tả bị sửa | #8 Người bán đúng | Giới hạn còn lại |
 |---|---|---|---|
 | 1. Snapshot và trạng thái | Pass — prototype hiện mô tả lúc đặt, mô tả hiện tại, timestamp và “chưa đủ căn cứ”. | Pass một phần — không kết luận và vẫn có đường chuyển người; fixture chưa có phản hồi shop đầy đủ. | Snapshot/audit là dữ liệu mock, chưa kết nối nguồn thật. |
-| 2. Xin bằng chứng/chuyển người | Pass trong mô phỏng — hai hành động hiện thông báo và giữ hồ sơ. | Pass trong mô phỏng — có đường xin thêm ảnh/chuyển nhân viên, không phán quyết tự động. | Không có hàng đợi nhân viên thật; SLA 24 giờ là mock. |
+| 2. Xin bằng chứng/chuyển người | Pass trong mô phỏng — có 5 giây để hủy trước khi gửi; trạng thái đã gửi ghi rõ không thể thu hồi; chuyển hồ sơ có nút thu hồi khi còn chờ. | Pass trong mô phỏng — cùng cửa sổ hủy và thu hồi, có đường chuyển người, không phán quyết tự động. | Không có hàng đợi hay sự kiện nhân viên nhận thật; SLA 24 giờ và trạng thái chuyển đều là mock. |
 | 3. Nháp và xác nhận | Pass trong mô phỏng — mở bản nháp, cần xác nhận mới gửi yêu cầu chờ duyệt. | Pass — nút nháp hoàn tiền bị ẩn, không có nút tự từ chối. | Không mô phỏng quyền duyệt cuối hoặc giao dịch tiền thật. |
 
 # §7. Kịch bản demo và giới hạn
 
 1. **Nghĩa** giới thiệu §1–§2, chọn ca mô tả bị sửa; chỉ ra hai bản mô tả, dữ liệu
    mock và trạng thái chưa đủ căn cứ.
-2. **Quang** trình diễn §3–§4: xin bằng chứng, mở bản nháp hoàn tiền nhưng chưa gửi,
-   rồi chuyển nhân viên; giải thích vì sao `tu_choi_khieu_nai` cần duyệt.
+2. **Quang** trình diễn §3–§4: xin bằng chứng rồi hủy trong 5 giây; gửi lại và chờ
+   đến khi UI nêu rõ tin đã tới người nhận, không thể thu hồi. Mở bản nháp hoàn tiền
+   nhưng chưa gửi, chuyển hồ sơ mock rồi thu hồi khi còn chờ; giải thích prototype
+   không có sự kiện nhân viên nhận và vì sao `tu_choi_khieu_nai` cần duyệt.
 3. **Quân** trình diễn §5–§6 trên [prototype/index.html](prototype/index.html):
    đổi sang ca người bán đúng, chỉ ra không có tự từ chối/tự hoàn, đọc ba Pass/Fail.
 
