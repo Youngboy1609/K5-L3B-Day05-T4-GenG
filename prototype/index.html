@@ -42,13 +42,13 @@
           <div class="description current"><div class="label">Mô tả hiện tại · đã chỉnh sửa</div><p id="currentDescription">Áo khoác dù 1 lớp, màu đen, size M; không nêu logo.</p><small>Chỉnh sửa 15/05/2026 · 16:40</small></div>
         </div>
         <div class="complaint"><strong>Lời báo của người mua</strong><br>“Hàng nhận được không giống mô tả lúc mua; áo mỏng và không có logo.”</div>
-        <p id="sellerReviewNotice" class="explain" hidden>Người mua vẫn có thể yêu cầu xem xét. Trợ lý không đề xuất hoàn tiền hoặc từ chối ở ca này; nút chuyển trưởng nhóm giữ nguyên hồ sơ khiếu nại.</p>
+        <p id="sellerReviewNotice" class="explain" hidden>Người mua vẫn có thể yêu cầu xem xét. Trợ lý không đề xuất hoàn tiền hoặc từ chối ở ca này; nút chuyển chuyên viên tư vấn của nền tảng giữ nguyên hồ sơ khiếu nại.</p>
         <section class="timeline" aria-label="Các thời hạn của ca mock">
           <div class="time-item"><strong>Hạn gửi yêu cầu trả/hoàn</strong><span>21/05/2026 · 09:00</span><small>Mock: 7 ngày từ lúc nhận hàng (14/05/2026 · 09:00)</small></div>
           <div class="time-item"><strong>Còn tại mốc chat mock 15/05 · 16:40</strong><span>5 ngày 16 giờ 20 phút</span><small>Thời hạn của người mua · mock</small></div>
-          <div class="time-item"><strong>Người bán phản hồi trước</strong><span>18/05/2026 · 16:40</span><small>Mock: 3 ngày; quá hạn thì chuyển nhân viên, không tự kết luận</small></div>
+          <div class="time-item"><strong>Người bán phản hồi trước</strong><span>18/05/2026 · 16:40</span><small>Mock: 3 ngày; quá hạn thì chuyển chuyên viên tư vấn, không tự kết luận</small></div>
         </section>
-        <div class="actions"><button class="secondary" id="evidenceAction" type="button" onclick="requestEvidence()">Xin thêm bằng chứng</button><button class="quiet" id="undoEvidenceAction" type="button" onclick="undoEvidenceRequest()" hidden>Hủy gửi</button><button class="quiet" id="aiAction" type="button" onclick="getAiRecommendation()">Gợi ý bước tiếp theo bằng AI local</button><button class="primary" id="refundAction" type="button" onclick="openRefundReview()">Soạn yêu cầu hoàn tiền</button><button class="quiet" id="transferAction" type="button" onclick="transferToStaff()">Chuyển trưởng nhóm</button><button class="quiet" id="undoTransferAction" type="button" onclick="undoTransfer()" hidden>Thu hồi chuyển · đang chờ</button></div>
+        <div class="actions"><button class="secondary" id="evidenceAction" type="button" onclick="requestEvidence()">Xin thêm bằng chứng</button><button class="quiet" id="undoEvidenceAction" type="button" onclick="undoEvidenceRequest()" hidden>Hủy gửi</button><button class="quiet" id="aiAction" type="button" onclick="getAiRecommendation()">Gợi ý bước tiếp theo bằng AI local</button><button class="primary" id="refundAction" type="button" onclick="openRefundReview()">Soạn yêu cầu hoàn tiền</button><button class="quiet" id="transferAction" type="button" onclick="transferToStaff()">Chuyển chuyên viên tư vấn</button><button class="quiet" id="undoTransferAction" type="button" onclick="undoTransfer()" hidden>Thu hồi chuyển · đang chờ</button></div>
         <section class="ai-panel" id="aiPanel" role="status" aria-live="polite" hidden></section>
         <div class="notice" id="evidenceNotice" role="status" aria-live="polite"></div>
         <div class="notice" id="notice" role="status" aria-live="polite"></div>
@@ -56,19 +56,19 @@
       <aside class="card">
         <div class="annotation"><span class="num">3</span><h2>Bằng chứng còn thiếu</h2><p class="explain">Không suy đoán từ ảnh mờ hoặc mô tả hiện tại (G10 · PAIR Explainability).</p></div>
         <ul id="evidenceList"><li><span>○</span>Ảnh cận cảnh logo và chất liệu áo</li><li><span>○</span>Ảnh tem size / mã sản phẩm</li><li><span>○</span>Lịch sử chỉnh sửa mô tả (audit log)</li></ul>
-        <div class="annotation" style="margin-top:22px"><span class="num">4</span><h2>Đường chuyển an toàn</h2><p class="explain">Chuyển snapshot nguyên vẹn, không mất lời báo hay bằng chứng. SLA mock: phản hồi trong 24 giờ (G8/G9 · PAIR Graceful Failure).</p><button class="quiet" id="sidebarTransferAction" type="button" onclick="transferToStaff()">Chuyển trưởng nhóm · SLA 24h</button><p class="explain" id="transferAsideStatus" hidden></p></div>
+        <div class="annotation" style="margin-top:22px"><span class="num">4</span><h2>Đường chuyển an toàn</h2><p class="explain">Chuyển snapshot nguyên vẹn, không mất lời báo hay bằng chứng. SLA mock: phản hồi trong 24 giờ (G8/G9 · PAIR Graceful Failure).</p><button class="quiet" id="sidebarTransferAction" type="button" onclick="transferToStaff()">Chuyển chuyên viên tư vấn · SLA 24h</button><p class="explain" id="transferAsideStatus" hidden></p></div>
       </aside>
       <section class="card span">
         <h2>Mức tự chủ trong flow này</h2>
-        <div class="autonomy"><div class="level self"><strong>Tự làm</strong><p>Yêu cầu bằng chứng tự gửi sau 5 giây, có thể hủy trước khi gửi; chuyển hồ sơ mock có thể thu hồi khi còn chờ.</p></div><div class="level human"><strong>Cần người duyệt</strong><p>Soạn nháp hoàn tiền; người mua xác nhận gửi yêu cầu, nhân viên duyệt mọi tác động tiền.</p></div><div class="level blocked"><strong>Cấm</strong><p>Không tự từ chối, phạt hoặc khóa shop từ khiếu nại này.</p></div></div>
+        <div class="autonomy"><div class="level self"><strong>Tự làm</strong><p>Yêu cầu bằng chứng tự gửi sau 5 giây, có thể hủy trước khi gửi; chuyển hồ sơ mock có thể thu hồi khi còn chờ.</p></div><div class="level human"><strong>Cần người duyệt</strong><p>Soạn nháp hoàn tiền; người mua xác nhận gửi yêu cầu, chuyên viên tư vấn duyệt mọi tác động tiền.</p></div><div class="level blocked"><strong>Cấm</strong><p>Không tự từ chối, phạt hoặc khóa shop từ khiếu nại này.</p></div></div>
       </section>
     </section>
   </main>
   <div class="modal-backdrop" id="refundModal" hidden role="presentation">
     <section class="modal" id="refundDialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1">
       <div class="annotation"><span class="num">5</span><h2 id="modalTitle">Xem lại yêu cầu hoàn tiền</h2><p class="explain">Bản nháp; chưa gửi tiền. Người mua phải xem lại và xác nhận gửi yêu cầu (G8/G9 · PAIR Explainability).</p></div>
-      <div class="review"><strong>Lý do</strong><p>Hàng nhận được có dấu hiệu khác mô tả tại thời điểm đặt hàng. Chờ nhân viên đối chiếu audit log và bằng chứng bổ sung.</p><strong>Số tiền mock</strong><p style="margin-bottom:0">350.000 ₫ · chưa gửi</p></div>
-      <label class="check"><input id="refundConfirm" type="checkbox"> <span>Tôi đã đọc bản nháp và xác nhận gửi yêu cầu hoàn tiền để nhân viên tiếp tục duyệt.</span></label>
+      <div class="review"><strong>Lý do</strong><p>Hàng nhận được có dấu hiệu khác mô tả tại thời điểm đặt hàng. Chờ chuyên viên tư vấn đối chiếu audit log và bằng chứng bổ sung.</p><strong>Số tiền mock</strong><p style="margin-bottom:0">350.000 ₫ · chưa gửi</p></div>
+      <label class="check"><input id="refundConfirm" type="checkbox"> <span>Tôi đã đọc bản nháp và xác nhận gửi yêu cầu hoàn tiền để chuyên viên tư vấn tiếp tục duyệt.</span></label>
       <div class="actions"><button class="primary" type="button" onclick="submitRefund()">Xác nhận gửi yêu cầu</button><button class="quiet" type="button" onclick="closeRefundReview()">Để xem lại sau</button></div>
       <div class="notice" id="modalNotice" role="status" aria-live="polite"></div>
     </section>
@@ -91,13 +91,13 @@
       $("evidenceAction").textContent=evidencePending?"Đang chờ gửi · 5 giây":evidenceSent?"Đã gửi yêu cầu bằng chứng":evidenceCancelled?"Gửi lại yêu cầu bằng chứng":"Xin thêm bằng chứng";
       $("undoEvidenceAction").hidden=!evidencePending;
       $("evidenceNotice").textContent=evidencePending?"Mock: yêu cầu sẽ tự gửi sau 5 giây. Bấm Hủy gửi trước khi tin tới người nhận.":evidenceCancelled?"Đã hủy; chưa gửi tin nhắn nào.":evidenceSent?"Mock: tin đã tới người nhận và không thể thu hồi. Hồ sơ vẫn giữ trạng thái chưa đủ căn cứ.":"";
-      $("notice").textContent=state.transferSent?`Đã chuyển snapshot mock tới trưởng nhóm; ca: ${item.label}. Có thể thu hồi khi còn chờ. Prototype không mô phỏng nhân viên nhận hồ sơ. SLA phản hồi dự kiến: 24 giờ.`:state.transferUndone?"Đã thu hồi chuyển hồ sơ mock; snapshot và bằng chứng vẫn được giữ.":"";
+      $("notice").textContent=state.transferSent?`Đã chuyển snapshot mock tới chuyên viên tư vấn của nền tảng; ca: ${item.label}. Có thể thu hồi khi còn chờ. Prototype không mô phỏng chuyên viên tư vấn nhận hồ sơ. SLA phản hồi dự kiến: 24 giờ.`:state.transferUndone?"Đã thu hồi chuyển hồ sơ mock; snapshot và bằng chứng vẫn được giữ.":"";
       $("transferAction").hidden=state.transferSent;
       $("undoTransferAction").hidden=!state.transferSent;
       $("sidebarTransferAction").hidden=state.transferSent;
       $("transferAsideStatus").hidden=!state.transferSent;
       $("transferAsideStatus").textContent=state.transferSent?"Đang chờ trong mô phỏng · có thể thu hồi ở nút trong hồ sơ.":"";
-      $("status").innerHTML="<i></i>"+(state.refundSubmitted?"đã gửi nháp cho nhân viên · chờ duyệt":"chưa đủ căn cứ");
+      $("status").innerHTML="<i></i>"+(state.refundSubmitted?"đã gửi nháp cho chuyên viên tư vấn · chờ duyệt":"chưa đủ căn cứ");
       $("status").style.background=state.refundSubmitted?"var(--green-soft)":"var(--amber-soft)"; $("status").style.color=state.refundSubmitted?"var(--green)":"var(--amber)";
       $("currentDescription").parentElement.style.display=state.caseType==="sellerCorrect"?"none":"block";
       $("sellerReviewNotice").hidden=state.caseType!=="sellerCorrect";
@@ -108,10 +108,10 @@
     function renderAiPanel(){
       const panel=$("aiPanel"); panel.replaceChildren();
       if(state.aiLoading){panel.hidden=false;panel.classList.remove("ai-error");const title=document.createElement("h3");title.textContent="Đang phân tích fixture mock";const note=document.createElement("p");note.textContent="Ollama local đang tạo gợi ý. AI chưa thực hiện hành động nào.";panel.append(title,note);return}
-      if(state.aiError){panel.hidden=false;panel.classList.add("ai-error");const title=document.createElement("h3");title.textContent="Chưa lấy được gợi ý AI";const note=document.createElement("p");note.textContent=state.aiError;const fallback=document.createElement("p");fallback.textContent="Trạng thái vẫn là chưa đủ căn cứ. Bạn có thể tiếp tục xin bằng chứng hoặc chuyển trưởng nhóm.";panel.append(title,note,fallback);return}
+      if(state.aiError){panel.hidden=false;panel.classList.add("ai-error");const title=document.createElement("h3");title.textContent="Chưa lấy được gợi ý AI";const note=document.createElement("p");note.textContent=state.aiError;const fallback=document.createElement("p");fallback.textContent="Trạng thái vẫn là chưa đủ căn cứ. Bạn có thể tiếp tục xin bằng chứng hoặc chuyển chuyên viên tư vấn của nền tảng.";panel.append(title,note,fallback);return}
       if(!state.aiResult){panel.hidden=true;panel.classList.remove("ai-error");return}
       panel.hidden=false;panel.classList.remove("ai-error");
-      const actionLabels={request_evidence:"Xin bằng chứng còn thiếu",transfer_to_team_lead:"Chuyển trưởng nhóm để xem xét"};
+      const actionLabels={request_evidence:"Xin bằng chứng còn thiếu",transfer_to_platform_advisor:"Chuyển cho chuyên viên tư vấn xem xét"};
       const basisLabels={order_snapshot:"Mô tả lúc đặt",current_description:"Mô tả hiện tại",buyer_claim:"Lời báo người mua",seller_reply:"Phản hồi người bán"};
       const missingLabels={clear_item_photo:"Ảnh rõ của sản phẩm",sku_or_size_tag:"Tem size / mã sản phẩm",listing_audit_log:"Audit log mô tả",seller_reply:"Phản hồi người bán",package_and_order_id:"Gói hàng và mã đơn"};
       const title=document.createElement("h3");title.textContent="Gợi ý của AI · chưa phải quyết định";
@@ -133,7 +133,7 @@
         if(requestId!==state.aiRequestId||caseId!==state.caseType)return;
         if(!response.ok){const errors={origin_rejected:"Mở prototype tại http://127.0.0.1:8766 rồi thử lại.",ollama_unavailable:"Không kết nối được Ollama local.",model_missing:"Không tìm thấy model qwen2.5:3b local.",ollama_error:"Ollama local chưa xử lý được yêu cầu.",model_busy:"Model đang xử lý ca khác. Thử lại sau.",invalid_model_response:"Model trả kết quả không đúng cấu trúc; chưa dùng kết quả này."};throw new Error(errors[payload?.error]||"Không lấy được gợi ý AI local.")}
         const basisIds=["order_snapshot","current_description","buyer_claim","seller_reply"],missingIds=["clear_item_photo","sku_or_size_tag","listing_audit_log","seller_reply","package_and_order_id"];
-        if(!payload||typeof payload!=="object"||!["request_evidence","transfer_to_team_lead"].includes(payload.action)||!Array.isArray(payload.basis)||payload.basis.length>4||!payload.basis.every(id=>basisIds.includes(id))||!Array.isArray(payload.missing)||payload.missing.length>4||!payload.missing.every(id=>missingIds.includes(id))||typeof payload.rationale!=="string"||payload.rationale.length<1||payload.rationale.length>240||payload.model!=="qwen2.5:3b"||payload.source!=="Ollama local"||!Number.isFinite(payload.elapsed_ms)||payload.elapsed_ms<0||payload.elapsed_ms>180000)throw new Error("Model trả kết quả không đúng cấu trúc; chưa dùng kết quả này.");
+        if(!payload||typeof payload!=="object"||!["request_evidence","transfer_to_platform_advisor"].includes(payload.action)||!Array.isArray(payload.basis)||payload.basis.length>4||!payload.basis.every(id=>basisIds.includes(id))||!Array.isArray(payload.missing)||payload.missing.length>4||!payload.missing.every(id=>missingIds.includes(id))||typeof payload.rationale!=="string"||payload.rationale.length<1||payload.rationale.length>240||payload.model!=="qwen2.5:3b"||payload.source!=="Ollama local"||!Number.isFinite(payload.elapsed_ms)||payload.elapsed_ms<0||payload.elapsed_ms>180000)throw new Error("Model trả kết quả không đúng cấu trúc; chưa dùng kết quả này.");
         state.aiResult=payload;
       }catch(error){if(requestId===state.aiRequestId)state.aiError=error instanceof TypeError||error instanceof SyntaxError?"Không kết nối được server local. Mở prototype bằng lệnh chạy ở README rồi thử lại.":error.message}
       finally{if(requestId===state.aiRequestId){state.aiLoading=false;render()}}
