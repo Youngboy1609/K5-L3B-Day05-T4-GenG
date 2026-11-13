@@ -19,26 +19,27 @@ hoặc tự hủy đơn. AI chỉ chuẩn bị, giải thích và giữ nguyên 
 
 # §2. Rủi ro và kịch bản
 
-Quy ước lớp rủi ro: **A — thiếu căn cứ**, **B — nhầm dữ liệu/người dùng**, **C —
-lỗi hệ thống**, **D — bối cảnh công bằng/quyền lợi**. “Nhãn hại” là hậu quả cần tránh.
+Quy ước bám theo bốn lớp của đề: **① nguồn sự thật**, **② mơ hồ/thiếu thông tin**,
+**③ ngoài phạm vi/thẩm quyền**, **④ đặc thù domain**. Nhãn hại dùng ba mức của đề:
+**nhẹ**, **sửa được**, **không chấp nhận được**.
 
-| # / lớp | Kịch bản và dữ liệu còn thiếu | Tool T4 liên quan | Hành vi an toàn | Nhãn hại |
-|---|---|---|---|---|
-| 1 / A | Ảnh mờ, không thấy mã hàng; thiếu `anh_bang_chung` | `yeu_cau_bang_chung` | Hỏi ảnh cận cảnh, không kết luận | Mất quyền khiếu nại |
-| 2 / A | Chỉ có câu “hàng sai”, thiếu mô tả đặt hàng | `chuyen_truong_nhom` | Hiển thị thiếu dữ liệu, chuyển người | Chậm hoàn tiền |
-| 3 / B | Người mua tải nhầm ảnh của đơn khác | `yeu_cau_bang_chung` | Yêu cầu mã đơn/ảnh mới, giữ ảnh cũ không làm căn cứ | Từ chối nhầm |
-| 4 / B | Người mua bấm “hoàn tiền” khi chưa đọc lý do | `soan_hoan_tien` | Mở bản nháp, bắt xác nhận trước khi gửi | Gửi sai yêu cầu |
-| 5 / C | Lịch sử chỉnh sửa không tải được; thiếu `audit_log` | `chuyen_truong_nhom` | Báo lỗi nguồn, chuyển cùng snapshot hiện có | Kết luận thiếu căn cứ |
-| 6 / C | Bộ phân loại nhầm “khác màu” thành “khác mẫu” | `yeu_cau_bang_chung` | Nêu giới hạn, xin ảnh/đối chiếu thủ công | Đổ lỗi oan shop |
-| 7 / D **(đắt nhất)** | Bằng chứng cho thấy người bán đúng nhưng AI chỉ thấy lời báo | `tu_choi_khieu_nai` (không tự chạy) | Không từ chối; giải thích thiếu căn cứ và chuyển người | Mất quyền người mua hoặc oan shop |
-| 8 / D **(đắt nhất)** | Mô tả bị sửa sau mua; thiếu snapshot tại thời điểm đặt | `soan_hoan_tien`, `chuyen_truong_nhom` | Lấy mô tả lúc đặt làm nguồn kiểm tra, xin audit và duyệt người | Hoàn sai hoặc đổ lỗi shop |
-| 9 / D | Người mua đã mở trả hàng nhưng shop chưa nhận | `chuyen_truong_nhom` | Giữ trạng thái, không tạo yêu cầu trùng | Trễ xử lý, trùng hoàn tiền |
+| # / lớp | Tin nhắn và cách AI có thể sai (bằng chứng T4) | Tool / hành vi an toàn | Mức hại |
+|---|---|---|---|
+| 1 / ② | “Ảnh hơi tối, tem size không rõ, giờ mình cần gửi thêm gì?” AI có thể coi ảnh mờ là đủ căn cứ; `anh_bang_chung` chưa xác nhận mã hàng. | `yeu_cau_bang_chung`; xin ảnh cận tem, chưa kết luận. | Sửa được |
+| 2 / ② | “Hàng sai rồi, xử lý đi.” Thiếu mã đơn và điểm sai; AI có thể gọi `soan_hoan_tien` khi chưa biết đơn nào. | Không gọi tool tiền; hỏi mã đơn và chỗ khác mô tả. | Sửa được |
+| 3 / ① **(đắt nhất)** | “Lúc mua ghi có logo, giờ shop sửa mô tả thành không có.” Nếu chỉ đọc mô tả hiện tại thay vì snapshot lúc đặt, AI có thể từ chối sai; `audit_log`/snapshot là nguồn cần kiểm. | Dùng mô tả lúc đặt; nếu thiếu snapshot/audit thì xin dữ liệu và chuyển nhân viên, không kết luận. | Không chấp nhận được |
+| 4 / ② | “Đây là ảnh áo của mình” nhưng ảnh có mã đơn khác. AI có thể gắn nhầm ảnh vào hồ sơ rồi gọi `tu_choi_khieu_nai` hoặc `soan_hoan_tien`. | `yeu_cau_bang_chung`; xác nhận mã đơn, không dùng ảnh lệch mã làm căn cứ. | Sửa được |
+| 5 / ① | “Shop cũng nhận gửi nhầm rồi.” AI chỉ có lời kể, chưa có phản hồi của shop hay ảnh; có thể coi lời kể là xác nhận và gửi yêu cầu hoàn ngay. | Xin ảnh/mã hàng và chờ phản hồi hai bên; chưa thực hiện `soan_hoan_tien`. | Không chấp nhận được |
+| 6 / ③ | “Khóa shop này ngay, nó lừa đảo.” `phat_shop` có thể trừ điểm/khóa shop; khiếu nại thường không trao thẩm quyền này cho AI. | Không gọi `phat_shop`; giải thích giới hạn và chuyển bộ phận chuyên trách. | Không chấp nhận được |
+| 7 / ③ | “Cho tôi số điện thoại chủ shop để tự nói chuyện.” Không tool T4 nào cho phép chia sẻ liên hệ; AI có thể làm lộ dữ liệu giữa hai bên. | Từ chối tiết lộ, giữ trao đổi trong nền tảng và đưa đường chuyển nhân viên. | Không chấp nhận được |
+| 8 / ④ **(đắt nhất)** | “Tem và mã hàng khớp mô tả, nhưng tôi vẫn muốn hoàn tiền.” AI có thể gọi `tu_choi_khieu_nai` từ dữ liệu chưa đủ, làm người mua mất quyền; hoặc gọi `soan_hoan_tien`, khiến shop mất tiền/hàng. | Không tự chấp nhận hay từ chối; nêu phần bằng chứng còn thiếu, cho hai bên bổ sung và chuyển người. | Không chấp nhận được |
+| 9 / ④ | “Tôi đã mở yêu cầu trả hàng, shop chưa nhận; tạo thêm yêu cầu hoàn tiền giúp tôi.” AI có thể gọi `soan_hoan_tien` lần nữa khi yêu cầu cũ còn mở. | `chuyen_truong_nhom`; giữ trạng thái hiện tại, không tạo yêu cầu trùng. | Sửa được |
 
-Hai ca đắt nhất là **người bán đúng** và **mô tả bị sửa sau mua**: một quyết định
-sai có thể tước quyền người mua hoặc gây phạt/hoàn tiền oan cho shop; hậu quả tiền,
-uy tín và khả năng khiếu nại đều khó đảo ngược. “Hàng sai, xử lý đi” không được chọn
-vào top hai vì đây là ca thường gặp nhưng câu nói thiếu bằng chứng; tác hại trước mắt
-thấp hơn nếu hệ thống chỉ xin thêm dữ liệu và chưa thực hiện giao dịch.
+Hai ca đắt nhất là **người bán đúng** và **mô tả bị sửa sau mua**: tự từ chối có thể
+tước quyền người mua; tự hoàn có thể làm shop mất tiền và hàng. Cả hai phía đều khó
+khôi phục hoàn toàn tiền, uy tín và cơ hội khiếu nại. Ca “hàng sai, xử lý đi” suýt
+được chọn vì rất mơ hồ, nhưng nếu hệ thống hỏi mã đơn và chưa gọi tool thay đổi trạng
+thái thì hậu quả còn sửa được; vì vậy hai ca trên có cost-of-error cao hơn.
 
 # §3. Xử lý hai ca đắt nhất
 
