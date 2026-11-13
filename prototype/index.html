@@ -85,10 +85,10 @@
     function requestEvidence(){state.evidenceRequested=true;render()}
     function openRefundReview(){if(state.caseType==="sellerCorrect"||state.refundSubmitted)return;state.refundInvoker=document.activeElement;state.refundConfirmationOpen=true;$("refundModal").hidden=false;$("refundConfirm").checked=false;$("modalNotice").textContent="";$("refundDialog").focus()}
     function closeRefundReview(){state.refundConfirmationOpen=false;$("refundModal").hidden=true;if(state.refundInvoker&&state.refundInvoker.isConnected)state.refundInvoker.focus();state.refundInvoker=null}
-    function submitRefund(){if(state.refundSubmitted)return;if(!$("refundConfirm").checked){$("modalNotice").textContent="Vui lòng xác nhận bạn đã đọc bản nháp trước khi gửi.";return}state.refundSubmitted=true;closeRefundReview();render()}
+    function submitRefund(){if(state.caseType!=="descriptionChanged"||state.refundSubmitted){closeRefundReview();render();return}if(!$("refundConfirm").checked){$("modalNotice").textContent="Vui lòng xác nhận bạn đã đọc bản nháp trước khi gửi.";return}state.refundSubmitted=true;closeRefundReview();render()}
     function transferToStaff(){state.transferSent=true;render()}
     function switchCase(){state.caseType=state.caseType==="descriptionChanged"?"sellerCorrect":"descriptionChanged";state.evidenceRequested=false;state.transferSent=false;state.refundSubmitted=false;render()}
-    document.addEventListener("keydown",event=>{if(event.key==="Escape"&&state.refundConfirmationOpen)closeRefundReview()});
+    document.addEventListener("keydown",event=>{if(!state.refundConfirmationOpen)return;if(event.key==="Escape"){closeRefundReview();return}if(event.key!=="Tab")return;const focusable=[...$("refundDialog").querySelectorAll("button,input,select,textarea,a[href]")].filter(element=>!element.disabled&&!element.hidden);if(!focusable.length){event.preventDefault();$("refundDialog").focus();return}const first=focusable[0],last=focusable[focusable.length-1];if(event.shiftKey&&(document.activeElement===first||!focusable.includes(document.activeElement))){event.preventDefault();last.focus()}else if(!event.shiftKey&&(document.activeElement===last||!focusable.includes(document.activeElement))){event.preventDefault();first.focus()}});
     render();
   </script>
 </body>
