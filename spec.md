@@ -103,8 +103,8 @@ sai một trong hai quyền lợi ở #3/#8.
 Tool khó xếp nhất là `tu_choi_khieu_nai`: tự làm có thể tước quyền người mua; luôn
 chờ duyệt làm chậm ca rõ ràng; cấm AI giữ được quyền khiếu nại nhưng tăng tải nhân
 viên. Nhóm chọn cần người duyệt trong quy trình phân xử, nhưng cấm AI tự gọi tool trong
-lát cắt chat này. Hồ sơ hiện có quyết định nhóm đã chốt, không lưu phiếu xếp mức riêng
-của từng thành viên nên không gán lựa chọn cá nhân hồi tố.
+lát cắt chat này. Nhóm xác nhận không ghi lại/không nhớ lựa chọn xếp mức ban đầu của
+từng thành viên; spec chỉ ghi quyết định chung, không gán lựa chọn cá nhân hồi tố.
 
 **Thử mức tự chủ trên ba kịch bản:**
 
