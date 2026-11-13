@@ -34,7 +34,7 @@
       <article class="card">
         <div class="case-head"><div class="case-id">Đơn #MOCK-4821 · Người mua: Linh N.</div><div class="status" id="status"><i></i>chưa đủ căn cứ</div></div>
         <div class="annotation"><span class="num">1</span><h2>Trạng thái kiểm tra</h2><p class="explain">Chưa thể kết luận đúng/sai chỉ từ lời báo. Hệ thống giữ quyền khiếu nại và nêu rõ phần còn thiếu (G10 Explainability).</p></div>
-        <div class="annotation"><span class="num">2</span><div class="source"><h3>Mô tả tại thời điểm đặt hàng · nguồn sự thật</h3><div id="sourceText">“Áo khoác gió 2 lớp, màu xanh navy, size M; có logo thêu ở ngực trái.”<br><small>Đã lưu 12/05/2026 · 09:14 (trước khi thanh toán)</small></div></div></div>
+        <div class="annotation"><span class="num">2</span><div class="source"><h3>Mô tả tại thời điểm đặt hàng · nguồn sự thật (G11 · PAIR Explainability/Trust)</h3><div id="sourceText">“Áo khoác gió 2 lớp, màu xanh navy, size M; có logo thêu ở ngực trái.”<br><small>Đã lưu 12/05/2026 · 09:14 (trước khi thanh toán)</small></div></div></div>
         <div class="description-grid">
           <div class="description"><div class="label">Mô tả lúc đặt hàng</div><p id="orderDescription">Áo khoác gió 2 lớp, màu xanh navy, size M; có logo thêu ở ngực trái.</p></div>
           <div class="description current"><div class="label">Mô tả hiện tại · đã chỉnh sửa</div><p id="currentDescription">Áo khoác dù 1 lớp, màu đen, size M; không nêu logo.</p><small>Chỉnh sửa 15/05/2026 · 16:40</small></div>
@@ -76,7 +76,7 @@
       $("currentDescription").nextElementSibling.textContent=state.caseType==="descriptionChanged"?"Chỉnh sửa 15/05/2026 · 16:40":"Đã xác nhận theo hồ sơ shop · 12/05/2026 · 09:16";
       $("orderDescription").textContent=state.caseType==="descriptionChanged"?"Áo khoác gió 2 lớp, màu xanh navy, size M; có logo thêu ở ngực trái.":"Áo khoác gió 2 lớp, màu xanh navy, size M; có logo thêu ở ngực trái.";
       $("evidenceList").innerHTML=(state.caseType==="descriptionChanged"?["Ảnh cận cảnh logo và chất liệu áo","Ảnh tem size / mã sản phẩm","Lịch sử chỉnh sửa mô tả (audit log)"]:["Ảnh cận cảnh logo và chất liệu áo","Ảnh tem size / mã sản phẩm","Ảnh chụp gói hàng và mã đơn"]).map(x=>`<li><span>${state.evidenceRequested?"✓":"○"}</span>${x}</li>`).join("");
-      $("notice").textContent=state.evidenceRequested?"Đã gửi yêu cầu bằng chứng mock; hồ sơ vẫn giữ trạng thái chưa đủ căn cứ.":state.transferSent?"Đã chuyển snapshot cho nhân viên; SLA phản hồi trong 24 giờ.":"";
+      $("notice").textContent=state.transferSent?`Đã chuyển snapshot cho nhân viên; tóm tắt ca: ${item.label}. SLA phản hồi trong 24 giờ.`:state.evidenceRequested?"Đã gửi yêu cầu bằng chứng mock; hồ sơ vẫn giữ trạng thái chưa đủ căn cứ.":"";
       $("status").innerHTML="<i></i>"+(state.refundSubmitted?"đã gửi nháp cho nhân viên · chờ duyệt":"chưa đủ căn cứ");
       $("status").style.background=state.refundSubmitted?"var(--green-soft)":"var(--amber-soft)"; $("status").style.color=state.refundSubmitted?"var(--green)":"var(--amber)";
       $("currentDescription").parentElement.style.display=state.caseType==="sellerCorrect"?"none":"block";
