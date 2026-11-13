@@ -33,7 +33,7 @@
     <section class="grid">
       <article class="card">
         <div class="case-head"><div class="case-id">Đơn #MOCK-4821 · Người mua: Linh N.</div><div class="status" id="status"><i></i>chưa đủ căn cứ</div></div>
-        <div class="annotation"><span class="num">1</span><h2>Trạng thái kiểm tra</h2><p class="explain">Chưa thể kết luận đúng/sai chỉ từ lời báo. Hệ thống giữ quyền khiếu nại và nêu rõ phần còn thiếu (G10 Explainability).</p></div>
+        <div class="annotation"><span class="num">1</span><h2>Trạng thái kiểm tra</h2><p class="explain">Chưa thể kết luận đúng/sai chỉ từ lời báo. Hệ thống giữ quyền khiếu nại và nêu rõ phần còn thiếu (G10 · PAIR Explainability).</p></div>
         <div class="annotation"><span class="num">2</span><div class="source"><h3>Mô tả tại thời điểm đặt hàng · nguồn sự thật (G11 · PAIR Explainability/Trust)</h3><div id="sourceText">“Áo khoác gió 2 lớp, màu xanh navy, size M; có logo thêu ở ngực trái.”<br><small>Đã lưu 12/05/2026 · 09:14 (trước khi thanh toán)</small></div></div></div>
         <div class="description-grid">
           <div class="description"><div class="label">Mô tả lúc đặt hàng</div><p id="orderDescription">Áo khoác gió 2 lớp, màu xanh navy, size M; có logo thêu ở ngực trái.</p></div>
@@ -44,9 +44,9 @@
         <div class="notice" id="notice" role="status" aria-live="polite"></div>
       </article>
       <aside class="card">
-        <div class="annotation"><span class="num">3</span><h2>Bằng chứng còn thiếu</h2><p class="explain">Không suy đoán từ ảnh mờ hoặc mô tả hiện tại.</p></div>
+        <div class="annotation"><span class="num">3</span><h2>Bằng chứng còn thiếu</h2><p class="explain">Không suy đoán từ ảnh mờ hoặc mô tả hiện tại (G10 · PAIR Explainability).</p></div>
         <ul id="evidenceList"><li><span>○</span>Ảnh cận cảnh logo và chất liệu áo</li><li><span>○</span>Ảnh tem size / mã sản phẩm</li><li><span>○</span>Lịch sử chỉnh sửa mô tả (audit log)</li></ul>
-        <div class="annotation" style="margin-top:22px"><span class="num">4</span><h2>Đường chuyển an toàn</h2><p class="explain">Nhân viên nhận snapshot nguyên vẹn, không mất lời báo hay bằng chứng. SLA mock: phản hồi trong 24 giờ.</p><button class="quiet" type="button" onclick="transferToStaff()">Chuyển nhân viên · SLA 24h</button></div>
+        <div class="annotation" style="margin-top:22px"><span class="num">4</span><h2>Đường chuyển an toàn</h2><p class="explain">Nhân viên nhận snapshot nguyên vẹn, không mất lời báo hay bằng chứng. SLA mock: phản hồi trong 24 giờ (G8/G9 · PAIR Graceful Failure).</p><button class="quiet" type="button" onclick="transferToStaff()">Chuyển nhân viên · SLA 24h</button></div>
       </aside>
       <section class="card span">
         <h2>Mức tự chủ trong flow này</h2>
@@ -56,7 +56,7 @@
   </main>
   <div class="modal-backdrop" id="refundModal" hidden role="presentation">
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div class="annotation"><span class="num">5</span><h2 id="modalTitle">Xem lại yêu cầu hoàn tiền</h2><p class="explain">Đây chỉ là bản nháp. Chưa có tiền nào được gửi.</p></div>
+      <div class="annotation"><span class="num">5</span><h2 id="modalTitle">Xem lại yêu cầu hoàn tiền</h2><p class="explain">Đây chỉ là bản nháp. Chưa có tiền nào được gửi (G8/G9 · PAIR Explainability).</p></div>
       <div class="review"><strong>Lý do</strong><p>Hàng nhận được có dấu hiệu khác mô tả tại thời điểm đặt hàng. Chờ nhân viên đối chiếu audit log và bằng chứng bổ sung.</p><strong>Số tiền mock</strong><p style="margin-bottom:0">350.000 ₫ · chưa gửi</p></div>
       <label class="check"><input id="refundConfirm" type="checkbox"> <span>Tôi đã đọc bản nháp và xác nhận gửi yêu cầu hoàn tiền để nhân viên tiếp tục duyệt.</span></label>
       <div class="actions"><button class="primary" type="button" onclick="submitRefund()">Xác nhận gửi yêu cầu</button><button class="quiet" type="button" onclick="closeRefundReview()">Để xem lại sau</button></div>
