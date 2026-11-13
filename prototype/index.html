@@ -17,6 +17,7 @@
     .annotation{position:relative;padding-left:44px}.num{position:absolute;left:0;top:0;width:29px;height:29px;border-radius:50%;display:grid;place-items:center;background:var(--blue);color:#fff;font-weight:900}.annotation small{display:block;color:var(--muted);margin-top:5px}.source{border-left:3px solid #65aede;background:var(--blue-soft);padding:14px 16px;margin:10px 0 18px;border-radius:0 10px 10px 0}
     .description-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.description{border:1px solid var(--line);border-radius:11px;padding:14px}.description.current{border-color:#e8c77d;background:#fffaf0}.label{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.05em}.description p{margin:8px 0 0}.complaint{background:#f8fafb;border:1px dashed #bdcbd3;padding:13px 15px;border-radius:10px;margin-top:12px}
     .timeline{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:9px;margin-top:12px}.time-item{background:#f8fafb;border:1px solid var(--line);border-radius:10px;padding:10px 12px}.time-item strong,.time-item span,.time-item small{display:block}.time-item strong{font-size:12px}.time-item span{font-weight:750;margin-top:3px}.time-item small{color:var(--muted);font-size:11px;margin-top:2px}
+    .ai-panel{margin-top:14px;padding:14px;border:1px solid #a9cce0;border-radius:11px;background:#f4f9fc}.ai-panel[hidden]{display:none}.ai-panel h3{margin:0 0 6px;font-size:16px}.ai-panel p{margin:6px 0}.ai-meta{color:var(--muted);font-size:12px}.ai-error{border-color:#e6c27c;background:#fffaf0}
     ul{padding:0;margin:10px 0 0;list-style:none}li{display:flex;gap:9px;align-items:flex-start;padding:8px 0;border-bottom:1px solid #edf1f3}li:last-child{border:0}li span{color:var(--amber);font-size:17px}
     .actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:17px}.primary{background:var(--blue);color:white}.secondary{background:#edf4f8;color:var(--blue)}.quiet{background:transparent;color:var(--muted);border:1px solid var(--line)}.danger{background:#fbeceb;color:var(--red)}
     .notice{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--green-soft);color:var(--green);font-weight:650}.notice:empty{display:none}.explain{color:var(--muted);font-size:13px;margin:8px 0 0}
@@ -28,7 +29,7 @@
 <body>
   <main class="wrap">
     <header>
-      <div><div class="eyebrow">Case desk · dữ liệu mock · offline</div><h1>Khiếu nại hàng không đúng mô tả</h1><p class="lead">AI chuẩn bị và giải thích bước tiếp theo; AI không tự phán xử khi căn cứ chưa đủ.</p></div>
+      <div><div class="eyebrow">Case desk · dữ liệu mock · AI local tùy chọn</div><h1>Khiếu nại hàng không đúng mô tả</h1><p class="lead">AI chuẩn bị và giải thích bước tiếp theo; AI không tự phán xử khi căn cứ chưa đủ.</p></div>
       <div><div class="badge" id="caseLabel">Ca mô tả đã bị sửa</div><br><button class="switch" type="button" onclick="switchCase()" id="switchButton">Đổi sang ca người bán đúng</button></div>
     </header>
     <section class="grid">
@@ -47,7 +48,8 @@
           <div class="time-item"><strong>Còn tại mốc chat mock 15/05 · 16:40</strong><span>5 ngày 16 giờ 20 phút</span><small>Thời hạn của người mua · mock</small></div>
           <div class="time-item"><strong>Người bán phản hồi trước</strong><span>18/05/2026 · 16:40</span><small>Mock: 3 ngày; quá hạn thì chuyển nhân viên, không tự kết luận</small></div>
         </section>
-        <div class="actions"><button class="secondary" id="evidenceAction" type="button" onclick="requestEvidence()">Xin thêm bằng chứng</button><button class="quiet" id="undoEvidenceAction" type="button" onclick="undoEvidenceRequest()" hidden>Hủy gửi</button><button class="primary" id="refundAction" type="button" onclick="openRefundReview()">Soạn yêu cầu hoàn tiền</button><button class="quiet" id="transferAction" type="button" onclick="transferToStaff()">Chuyển trưởng nhóm</button><button class="quiet" id="undoTransferAction" type="button" onclick="undoTransfer()" hidden>Thu hồi chuyển · đang chờ</button></div>
+        <div class="actions"><button class="secondary" id="evidenceAction" type="button" onclick="requestEvidence()">Xin thêm bằng chứng</button><button class="quiet" id="undoEvidenceAction" type="button" onclick="undoEvidenceRequest()" hidden>Hủy gửi</button><button class="quiet" id="aiAction" type="button" onclick="getAiRecommendation()">Gợi ý bước tiếp theo bằng AI local</button><button class="primary" id="refundAction" type="button" onclick="openRefundReview()">Soạn yêu cầu hoàn tiền</button><button class="quiet" id="transferAction" type="button" onclick="transferToStaff()">Chuyển trưởng nhóm</button><button class="quiet" id="undoTransferAction" type="button" onclick="undoTransfer()" hidden>Thu hồi chuyển · đang chờ</button></div>
+        <section class="ai-panel" id="aiPanel" role="status" aria-live="polite" hidden></section>
         <div class="notice" id="evidenceNotice" role="status" aria-live="polite"></div>
         <div class="notice" id="notice" role="status" aria-live="polite"></div>
       </article>
@@ -72,7 +74,7 @@
     </section>
   </div>
   <script>
-    const state = {caseType:"descriptionChanged", evidenceStatus:"idle", evidenceTimer:null, transferSent:false, transferUndone:false, refundConfirmationOpen:false, refundSubmitted:false, refundInvoker:null};
+    const state = {caseType:"descriptionChanged", evidenceStatus:"idle", evidenceTimer:null, transferSent:false, transferUndone:false, refundConfirmationOpen:false, refundSubmitted:false, refundInvoker:null, aiLoading:false, aiRequestId:0, aiResult:null, aiError:""};
     const cases = {
       descriptionChanged:{label:"Ca mô tả đã bị sửa", current:"Áo khoác dù 1 lớp, màu đen, size M; không nêu logo.", switch:"Đổi sang ca người bán đúng"},
       sellerCorrect:{label:"Ca người bán đúng", current:"Áo khoác gió 2 lớp, màu xanh navy, size M; có logo thêu ở ngực trái.", switch:"Đổi sang ca mô tả đã bị sửa"}
@@ -100,6 +102,41 @@
       $("currentDescription").parentElement.style.display=state.caseType==="sellerCorrect"?"none":"block";
       $("sellerReviewNotice").hidden=state.caseType!=="sellerCorrect";
       $("refundAction").hidden=state.caseType==="sellerCorrect"||state.refundSubmitted; $("refundAction").disabled=state.refundSubmitted; $("refundAction").textContent=state.refundSubmitted?"Đã gửi yêu cầu":"Soạn yêu cầu hoàn tiền";
+      $("aiAction").disabled=state.aiLoading; $("aiAction").textContent=state.aiLoading?"Đang chờ gợi ý từ Ollama…":"Gợi ý bước tiếp theo bằng AI local";
+      renderAiPanel();
+    }
+    function renderAiPanel(){
+      const panel=$("aiPanel"); panel.replaceChildren();
+      if(state.aiLoading){panel.hidden=false;panel.classList.remove("ai-error");const title=document.createElement("h3");title.textContent="Đang phân tích fixture mock";const note=document.createElement("p");note.textContent="Ollama local đang tạo gợi ý. AI chưa thực hiện hành động nào.";panel.append(title,note);return}
+      if(state.aiError){panel.hidden=false;panel.classList.add("ai-error");const title=document.createElement("h3");title.textContent="Chưa lấy được gợi ý AI";const note=document.createElement("p");note.textContent=state.aiError;const fallback=document.createElement("p");fallback.textContent="Trạng thái vẫn là chưa đủ căn cứ. Bạn có thể tiếp tục xin bằng chứng hoặc chuyển trưởng nhóm.";panel.append(title,note,fallback);return}
+      if(!state.aiResult){panel.hidden=true;panel.classList.remove("ai-error");return}
+      panel.hidden=false;panel.classList.remove("ai-error");
+      const actionLabels={request_evidence:"Xin bằng chứng còn thiếu",transfer_to_team_lead:"Chuyển trưởng nhóm để xem xét"};
+      const basisLabels={order_snapshot:"Mô tả lúc đặt",current_description:"Mô tả hiện tại",buyer_claim:"Lời báo người mua",seller_reply:"Phản hồi người bán"};
+      const missingLabels={clear_item_photo:"Ảnh rõ của sản phẩm",sku_or_size_tag:"Tem size / mã sản phẩm",listing_audit_log:"Audit log mô tả",seller_reply:"Phản hồi người bán",package_and_order_id:"Gói hàng và mã đơn"};
+      const title=document.createElement("h3");title.textContent="Gợi ý của AI · chưa phải quyết định";
+      const meta=document.createElement("p");meta.className="ai-meta";meta.textContent=`${state.aiResult.model} · ${state.aiResult.source} · ${state.aiResult.elapsed_ms} ms`;
+      const action=document.createElement("p");const actionStrong=document.createElement("strong");actionStrong.textContent="Bước gợi ý: ";action.append(actionStrong,document.createTextNode(actionLabels[state.aiResult.action]));
+      const reason=document.createElement("p");reason.textContent=state.aiResult.rationale;
+      const basis=document.createElement("p");const basisStrong=document.createElement("strong");basisStrong.textContent="Căn cứ: ";basis.append(basisStrong,document.createTextNode(state.aiResult.basis.map(x=>basisLabels[x]).join(" · ")||"chưa nêu"));
+      const missing=document.createElement("p");const missingStrong=document.createElement("strong");missingStrong.textContent="Còn thiếu: ";missing.append(missingStrong,document.createTextNode(state.aiResult.missing.map(x=>missingLabels[x]).join(" · ")||"model chưa nêu"));
+      const guard=document.createElement("p");guard.className="ai-meta";guard.textContent="Chỉ phân tích fixture mock; không gọi tool, không hoàn tiền hoặc từ chối khiếu nại.";
+      panel.append(title,meta,action,reason,basis,missing,guard);
+    }
+    async function getAiRecommendation(){
+      if(state.aiLoading)return;
+      const requestId=++state.aiRequestId, caseId=state.caseType;
+      state.aiLoading=true;state.aiResult=null;state.aiError="";render();
+      try{
+        const response=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({case_id:caseId})});
+        const payload=await response.json();
+        if(requestId!==state.aiRequestId||caseId!==state.caseType)return;
+        if(!response.ok){const errors={origin_rejected:"Mở prototype tại http://127.0.0.1:8766 rồi thử lại.",ollama_unavailable:"Không kết nối được Ollama local.",model_missing:"Không tìm thấy model qwen2.5:3b local.",ollama_error:"Ollama local chưa xử lý được yêu cầu.",model_busy:"Model đang xử lý ca khác. Thử lại sau.",invalid_model_response:"Model trả kết quả không đúng cấu trúc; chưa dùng kết quả này."};throw new Error(errors[payload?.error]||"Không lấy được gợi ý AI local.")}
+        const basisIds=["order_snapshot","current_description","buyer_claim","seller_reply"],missingIds=["clear_item_photo","sku_or_size_tag","listing_audit_log","seller_reply","package_and_order_id"];
+        if(!payload||typeof payload!=="object"||!["request_evidence","transfer_to_team_lead"].includes(payload.action)||!Array.isArray(payload.basis)||payload.basis.length>4||!payload.basis.every(id=>basisIds.includes(id))||!Array.isArray(payload.missing)||payload.missing.length>4||!payload.missing.every(id=>missingIds.includes(id))||typeof payload.rationale!=="string"||payload.rationale.length<1||payload.rationale.length>240||payload.model!=="qwen2.5:3b"||payload.source!=="Ollama local"||!Number.isFinite(payload.elapsed_ms)||payload.elapsed_ms<0||payload.elapsed_ms>180000)throw new Error("Model trả kết quả không đúng cấu trúc; chưa dùng kết quả này.");
+        state.aiResult=payload;
+      }catch(error){if(requestId===state.aiRequestId)state.aiError=error instanceof TypeError||error instanceof SyntaxError?"Không kết nối được server local. Mở prototype bằng lệnh chạy ở README rồi thử lại.":error.message}
+      finally{if(requestId===state.aiRequestId){state.aiLoading=false;render()}}
     }
     function requestEvidence(){if(state.evidenceStatus==="pending"||state.evidenceStatus==="sent")return;state.evidenceStatus="pending";state.evidenceTimer=window.setTimeout(()=>{state.evidenceTimer=null;state.evidenceStatus="sent";render()},5000);render()}
     function undoEvidenceRequest(){if(state.evidenceStatus!=="pending")return;window.clearTimeout(state.evidenceTimer);state.evidenceTimer=null;state.evidenceStatus="cancelled";render()}
@@ -108,7 +145,7 @@
     function submitRefund(){if(state.caseType!=="descriptionChanged"||state.refundSubmitted){closeRefundReview();render();return}if(!$("refundConfirm").checked){$("modalNotice").textContent="Vui lòng xác nhận bạn đã đọc bản nháp trước khi gửi.";return}state.refundSubmitted=true;closeRefundReview();render()}
     function transferToStaff(){if(state.transferSent)return;state.transferSent=true;state.transferUndone=false;render()}
     function undoTransfer(){if(!state.transferSent)return;state.transferSent=false;state.transferUndone=true;render()}
-    function switchCase(){if(state.evidenceTimer)window.clearTimeout(state.evidenceTimer);state.evidenceTimer=null;state.caseType=state.caseType==="descriptionChanged"?"sellerCorrect":"descriptionChanged";state.evidenceStatus="idle";state.transferSent=false;state.transferUndone=false;state.refundSubmitted=false;render()}
+    function switchCase(){if(state.evidenceTimer)window.clearTimeout(state.evidenceTimer);state.evidenceTimer=null;state.aiRequestId++;state.aiLoading=false;state.aiResult=null;state.aiError="";state.caseType=state.caseType==="descriptionChanged"?"sellerCorrect":"descriptionChanged";state.evidenceStatus="idle";state.transferSent=false;state.transferUndone=false;state.refundSubmitted=false;render()}
     document.addEventListener("keydown",event=>{if(!state.refundConfirmationOpen)return;if(event.key==="Escape"){closeRefundReview();return}if(event.key!=="Tab")return;const focusable=[...$("refundDialog").querySelectorAll("button,input,select,textarea,a[href]")].filter(element=>!element.disabled&&!element.hidden);if(!focusable.length){event.preventDefault();$("refundDialog").focus();return}const first=focusable[0],last=focusable[focusable.length-1];if(event.shiftKey&&(document.activeElement===first||!focusable.includes(document.activeElement))){event.preventDefault();last.focus()}else if(!event.shiftKey&&(document.activeElement===last||!focusable.includes(document.activeElement))){event.preventDefault();first.focus()}});
     render();
   </script>

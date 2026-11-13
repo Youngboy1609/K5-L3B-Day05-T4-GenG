@@ -2,9 +2,21 @@
 
 ## Mở và chạy
 
-Mở trực tiếp `prototype/index.html` bằng trình duyệt (double-click hoặc
-`Open with…`). Prototype chạy offline bằng HTML/CSS/JavaScript thuần; không cần
-cài package, máy chủ, tài khoản hay API key.
+Các nút mock vẫn dùng được khi mở `index.html` trực tiếp. Để gọi AI thật, cần
+Python 3 và Ollama cài sẵn model `qwen2.5:3b` trên máy. Nếu Ollama chưa chạy,
+mở một terminal riêng và chạy `ollama serve`. Nếu model chưa có, `ollama pull
+qwen2.5:3b` sẽ tải model về máy; prototype không tự tải.
+
+Từ thư mục repo, chạy:
+
+```powershell
+python prototype/server.py
+```
+
+Mở <http://127.0.0.1:8766>. Server dùng Python standard library, chỉ bind vào
+loopback và chuyển đúng hai mã ca mock tới Ollama local. Nhấn **Gợi ý bước tiếp
+theo bằng AI local** để tạo một đề xuất; không có cuộc gọi nào tự chạy khi mở
+trang. Dừng bằng `Ctrl+C`.
 
 ## Luồng demo
 
@@ -20,6 +32,8 @@ cài package, máy chủ, tài khoản hay API key.
    hồi trước khi nhân viên nhận.
 5. Bấm **Đổi sang ca người bán đúng**; trạng thái vẫn chưa đủ căn cứ và không có
    nút tự từ chối hay tự hoàn tiền.
+6. Bấm **Gợi ý bước tiếp theo bằng AI local** ở một trong hai ca. Đọc bước gợi ý,
+   căn cứ, dữ liệu còn thiếu và nhãn model; sau đó tự chọn nút hành động nếu muốn.
 
 ## Chú thích và tiêu chí
 
@@ -33,6 +47,12 @@ tự chủ và chuyển người an toàn) và R5 (giải thích, kiểm soát t
 | 3 | Checklist ảnh, mã hàng và audit log còn thiếu | **G10 · PAIR Explainability**: hỏi/thu hẹp thay vì đoán | R3 |
 | 4 | Chuyển trưởng nhóm mock, giữ snapshot, có thể thu hồi khi còn chờ; SLA dự kiến 24 giờ | **G8/G9 · PAIR Graceful Failure**: có đường sửa và thoát an toàn | R4, R5 |
 | 5 | Trong modal review, bản nháp và checkbox xác nhận chưa tích | **G8/G9 · PAIR Explainability**: kiểm soát trước tác động | R4, R5 |
+
+Lời gọi AI thật dùng `qwen2.5:3b` qua API chat của Ollama trên cùng máy. Model chỉ
+được chọn giữa xin bằng chứng và chuyển trưởng nhóm; server kiểm tra JSON Schema,
+giới hạn căn cứ/dữ liệu thiếu và không chuyển output thành tool call. Gợi ý chỉ xuất
+hiện sau khi bấm nút, không đổi trạng thái ca hay gửi tin. Mất Ollama hoặc output sai
+định dạng thì UI báo lỗi và giữ nguyên đường thao tác thủ công.
 
 R3 được chứng minh bằng việc không phán quyết khi thiếu ảnh/audit; R4 bằng yêu cầu
 bằng chứng có 5 giây để hủy, trạng thái đã gửi không thể thu hồi, chuyển hồ sơ có
@@ -61,10 +81,16 @@ thích 5 nằm cạnh bản nháp và checkbox đang bỏ trống.
 
 ![Bản nháp yêu cầu hoàn tiền, checkbox xác nhận chưa tích và nút để xem lại sau](evidence-3-refund-review.png)
 
+### Lời gọi AI local thật
+
+![Kết quả gợi ý từ qwen2.5:3b chạy local trên fixture mock](evidence-4-ai-recommendation.png)
+
 ## Dữ liệu và giới hạn an toàn
 
 - Tất cả đơn hàng, mô tả, timestamp, số tiền, bằng chứng, SLA và thông báo đều
   là **mock data** trong trình duyệt; không gọi Shopee, backend hay dịch vụ thật.
+- Lời gọi AI chỉ gửi fixture mock từ server local sang Ollama local ở `127.0.0.1`;
+  không gửi dữ liệu lên cloud, không dùng API key và không lưu prompt/response.
 - Prototype chỉ chuẩn bị, giải thích, xin bằng chứng và chuyển trưởng nhóm. Không tự
   phán quyết khiếu nại, phạt/khóa shop, hủy đơn hoặc gửi tiền thật.
 - Cửa sổ 5 giây và trạng thái chuyển/thu hồi là mô phỏng phía trình duyệt. Prototype

@@ -143,11 +143,11 @@ khi căn cứ chưa đủ.”
 
 # §5. Prototype và ánh xạ tiêu chí
 
-Prototype offline: [prototype/index.html](prototype/index.html), dùng vanilla
-HTML/CSS/JavaScript, không dependency, API key hay dữ liệu thật. Ba ảnh bằng chứng:
+Prototype dùng vanilla HTML/CSS/JavaScript; endpoint AI chạy bằng Python standard
+library, không dependency hay API key. Bốn ảnh bằng chứng hiện có:
 [ca mô tả bị sửa](prototype/evidence-1-description-changed.png),
 [ca người bán đúng](prototype/evidence-2-seller-correct.png) và
-[review yêu cầu hoàn tiền](prototype/evidence-3-refund-review.png). Ảnh 1 thể hiện
+[review yêu cầu hoàn tiền](prototype/evidence-3-refund-review.png) và [kết quả AI local](prototype/evidence-4-ai-recommendation.png). Ảnh 1 thể hiện
 cửa sổ hủy yêu cầu bằng chứng; ảnh 2 thể hiện chuyển trưởng nhóm mock đang chờ;
 ảnh 3 mở modal, với checkbox xác nhận chưa tích. Chú thích 1–4 ở case desk; chú thích
 5 nằm cạnh nội dung bản nháp và xác nhận trong modal:
@@ -163,6 +163,14 @@ màn hình, kèm modal riêng cho bước duyệt nháp. Phương án wizard nhi
 loại vì người demo phải đổi trang để đối chiếu timestamp; confidence gauge bị loại vì
 prototype không có mô hình đã hiệu chuẩn, nên trạng thái “chưa đủ căn cứ” và checklist
 nguồn/bằng chứng dễ kiểm chứng hơn.
+
+**Lời gọi AI thật (bonus +3):** nút chủ động gọi `qwen2.5:3b` qua Ollama local trên
+fixture của #3 hoặc #8. Endpoint chỉ nhận mã ca, dựng prompt từ fixture phía server,
+yêu cầu JSON Schema và kiểm tra lại enum/độ dài trước khi trả cho UI. Model chỉ gợi ý
+`request_evidence` hoặc `transfer_to_team_lead`; không gọi tool và không đổi trạng thái.
+Nếu Ollama lỗi hoặc output không hợp lệ, UI giữ `chưa đủ căn cứ` và các nút thủ công.
+Ảnh [kết quả AI local](prototype/evidence-4-ai-recommendation.png) là bằng chứng cho
+lời gọi; nhóm cần chạy đúng luồng local khi người chấm yêu cầu xác minh.
 
 # §6. Tiêu chí Pass/Fail
 
