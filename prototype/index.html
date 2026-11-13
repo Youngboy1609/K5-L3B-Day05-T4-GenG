@@ -40,7 +40,7 @@
           <div class="description current"><div class="label">Mô tả hiện tại · đã chỉnh sửa</div><p id="currentDescription">Áo khoác dù 1 lớp, màu đen, size M; không nêu logo.</p><small>Chỉnh sửa 15/05/2026 · 16:40</small></div>
         </div>
         <div class="complaint"><strong>Lời báo của người mua</strong><br>“Hàng nhận được không giống mô tả lúc mua; áo mỏng và không có logo.”</div>
-        <div class="actions"><button class="secondary" type="button" onclick="requestEvidence()">Xin thêm bằng chứng</button><button class="primary" type="button" onclick="openRefundReview()">Soạn yêu cầu hoàn tiền</button><button class="quiet" type="button" onclick="transferToStaff()">Chuyển nhân viên</button></div>
+        <div class="actions"><button class="secondary" type="button" onclick="requestEvidence()">Xin thêm bằng chứng</button><button class="primary" id="refundAction" type="button" onclick="openRefundReview()">Soạn yêu cầu hoàn tiền</button><button class="quiet" type="button" onclick="transferToStaff()">Chuyển nhân viên</button></div>
         <div class="notice" id="notice" role="status" aria-live="polite"></div>
       </article>
       <aside class="card">
@@ -55,7 +55,7 @@
     </section>
   </main>
   <div class="modal-backdrop" id="refundModal" hidden role="presentation">
-    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <section class="modal" id="refundDialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1">
       <div class="annotation"><span class="num">5</span><h2 id="modalTitle">Xem lại yêu cầu hoàn tiền</h2><p class="explain">Đây chỉ là bản nháp. Chưa có tiền nào được gửi (G8/G9 · PAIR Explainability).</p></div>
       <div class="review"><strong>Lý do</strong><p>Hàng nhận được có dấu hiệu khác mô tả tại thời điểm đặt hàng. Chờ nhân viên đối chiếu audit log và bằng chứng bổ sung.</p><strong>Số tiền mock</strong><p style="margin-bottom:0">350.000 ₫ · chưa gửi</p></div>
       <label class="check"><input id="refundConfirm" type="checkbox"> <span>Tôi đã đọc bản nháp và xác nhận gửi yêu cầu hoàn tiền để nhân viên tiếp tục duyệt.</span></label>
@@ -64,7 +64,7 @@
     </section>
   </div>
   <script>
-    const state = {caseType:"descriptionChanged", evidenceRequested:false, transferSent:false, refundConfirmationOpen:false, refundSubmitted:false};
+    const state = {caseType:"descriptionChanged", evidenceRequested:false, transferSent:false, refundConfirmationOpen:false, refundSubmitted:false, refundInvoker:null};
     const cases = {
       descriptionChanged:{label:"Ca mô tả đã bị sửa", current:"Áo khoác dù 1 lớp, màu đen, size M; không nêu logo.", switch:"Đổi sang ca người bán đúng"},
       sellerCorrect:{label:"Ca người bán đúng", current:"Áo khoác gió 2 lớp, màu xanh navy, size M; có logo thêu ở ngực trái.", switch:"Đổi sang ca mô tả đã bị sửa"}
@@ -75,19 +75,20 @@
       $("currentDescription").parentElement.classList.toggle("current",state.caseType==="descriptionChanged");
       $("currentDescription").nextElementSibling.textContent=state.caseType==="descriptionChanged"?"Chỉnh sửa 15/05/2026 · 16:40":"Đã xác nhận theo hồ sơ shop · 12/05/2026 · 09:16";
       $("orderDescription").textContent=state.caseType==="descriptionChanged"?"Áo khoác gió 2 lớp, màu xanh navy, size M; có logo thêu ở ngực trái.":"Áo khoác gió 2 lớp, màu xanh navy, size M; có logo thêu ở ngực trái.";
-      $("evidenceList").innerHTML=(state.caseType==="descriptionChanged"?["Ảnh cận cảnh logo và chất liệu áo","Ảnh tem size / mã sản phẩm","Lịch sử chỉnh sửa mô tả (audit log)"]:["Ảnh cận cảnh logo và chất liệu áo","Ảnh tem size / mã sản phẩm","Ảnh chụp gói hàng và mã đơn"]).map(x=>`<li><span>${state.evidenceRequested?"✓":"○"}</span>${x}</li>`).join("");
+      $("evidenceList").innerHTML=(state.caseType==="descriptionChanged"?["Ảnh cận cảnh logo và chất liệu áo","Ảnh tem size / mã sản phẩm","Lịch sử chỉnh sửa mô tả (audit log)"]:["Ảnh cận cảnh logo và chất liệu áo","Ảnh tem size / mã sản phẩm","Ảnh chụp gói hàng và mã đơn"]).map(x=>`<li><span>${state.evidenceRequested?"◷":"○"}</span>${x}${state.evidenceRequested?" · Đang chờ":""}</li>`).join("");
       $("notice").textContent=state.transferSent?`Đã chuyển snapshot cho nhân viên; tóm tắt ca: ${item.label}. SLA phản hồi trong 24 giờ.`:state.evidenceRequested?"Đã gửi yêu cầu bằng chứng mock; hồ sơ vẫn giữ trạng thái chưa đủ căn cứ.":"";
       $("status").innerHTML="<i></i>"+(state.refundSubmitted?"đã gửi nháp cho nhân viên · chờ duyệt":"chưa đủ căn cứ");
       $("status").style.background=state.refundSubmitted?"var(--green-soft)":"var(--amber-soft)"; $("status").style.color=state.refundSubmitted?"var(--green)":"var(--amber)";
       $("currentDescription").parentElement.style.display=state.caseType==="sellerCorrect"?"none":"block";
-      document.querySelector(".primary").style.display=state.caseType==="sellerCorrect"?"none":"inline-block";
+      $("refundAction").hidden=state.caseType==="sellerCorrect"||state.refundSubmitted; $("refundAction").disabled=state.refundSubmitted; $("refundAction").textContent=state.refundSubmitted?"Đã gửi yêu cầu":"Soạn yêu cầu hoàn tiền";
     }
     function requestEvidence(){state.evidenceRequested=true;render()}
-    function openRefundReview(){if(state.caseType==="sellerCorrect")return;state.refundConfirmationOpen=true;$("refundModal").hidden=false;$("refundConfirm").checked=false;$("modalNotice").textContent="";$("refundConfirm").focus()}
-    function closeRefundReview(){state.refundConfirmationOpen=false;$("refundModal").hidden=true}
-    function submitRefund(){if(!$("refundConfirm").checked){$("modalNotice").textContent="Vui lòng xác nhận bạn đã đọc bản nháp trước khi gửi.";return}state.refundSubmitted=true;state.refundConfirmationOpen=false;$("refundModal").hidden=true;render()}
+    function openRefundReview(){if(state.caseType==="sellerCorrect"||state.refundSubmitted)return;state.refundInvoker=document.activeElement;state.refundConfirmationOpen=true;$("refundModal").hidden=false;$("refundConfirm").checked=false;$("modalNotice").textContent="";$("refundDialog").focus()}
+    function closeRefundReview(){state.refundConfirmationOpen=false;$("refundModal").hidden=true;if(state.refundInvoker&&state.refundInvoker.isConnected)state.refundInvoker.focus();state.refundInvoker=null}
+    function submitRefund(){if(state.refundSubmitted)return;if(!$("refundConfirm").checked){$("modalNotice").textContent="Vui lòng xác nhận bạn đã đọc bản nháp trước khi gửi.";return}state.refundSubmitted=true;closeRefundReview();render()}
     function transferToStaff(){state.transferSent=true;render()}
     function switchCase(){state.caseType=state.caseType==="descriptionChanged"?"sellerCorrect":"descriptionChanged";state.evidenceRequested=false;state.transferSent=false;state.refundSubmitted=false;render()}
+    document.addEventListener("keydown",event=>{if(event.key==="Escape"&&state.refundConfirmationOpen)closeRefundReview()});
     render();
   </script>
 </body>
