@@ -32,8 +32,20 @@ tự chủ và chuyển người an toàn) và R5 (giải thích, kiểm soát t
 
 R3 được chứng minh bằng việc không phán quyết khi thiếu ảnh/audit; R4 bằng
 request evidence, transfer và quyền duyệt của con người; R5 bằng nguồn sự thật,
-giới hạn, trạng thái và hành động đều được giải thích. Có thể chụp màn hình từ
-trình duyệt nếu giảng viên yêu cầu.
+giới hạn, trạng thái và hành động đều được giải thích.
+
+## Ảnh bằng chứng có đánh số
+
+Các số 1–5 được hiển thị trực tiếp trên giao diện và map tới G10, G11, G8/G9,
+PAIR Explainability/Trust và Graceful Failure như bảng trên.
+
+### Ca mô tả bị sửa
+
+![Ca mô tả bị sửa sau khi mua, với snapshot, mô tả hiện tại, bằng chứng thiếu và mức tự chủ](evidence-1-description-changed.png)
+
+### Ca người bán đúng
+
+![Ca người bán đúng, giữ trạng thái chưa đủ căn cứ và không hiện nút hoàn tiền hoặc từ chối](evidence-2-seller-correct.png)
 
 ## Dữ liệu và giới hạn an toàn
 
